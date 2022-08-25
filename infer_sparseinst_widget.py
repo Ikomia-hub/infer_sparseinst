@@ -22,6 +22,7 @@ from infer_sparseinst.infer_sparseinst_process import InferSparseinstParam
 
 # PyQt GUI framework
 from PyQt5.QtWidgets import *
+from infer_sparseinst.utils import model_zoo
 
 
 # --------------------
@@ -40,6 +41,10 @@ class InferSparseinstWidget(core.CWorkflowTaskWidget):
 
         # Create layout : QGridLayout by default
         self.gridLayout = QGridLayout()
+        self.combo_model = pyqtutils.append_combo(self.gridLayout, "Model name")
+        for model in model_zoo:
+            self.combo_model.addItem(model)
+        self.combo_model.setCurrentText(self.parameters.model_name)
         self.double_spin_thres = pyqtutils.append_double_spin(self.gridLayout, "Confidence threshold",
                                                               self.parameters.conf_thres, min=0., max=1., step=1e-2)
         self.check_custom = pyqtutils.append_check(self.gridLayout, "Default weights",
@@ -60,6 +65,7 @@ class InferSparseinstWidget(core.CWorkflowTaskWidget):
     def on_check_custom(self, i):
         self.browse_weights.setEnabled(not self.check_custom.isChecked())
         self.browse_cfg.setEnabled(not self.check_custom.isChecked())
+        self.combo_model.setEnabled(self.check_custom.isChecked())
 
     def onApply(self):
         # Apply button clicked slot
@@ -71,6 +77,7 @@ class InferSparseinstWidget(core.CWorkflowTaskWidget):
         self.parameters.custom = not self.check_custom.isChecked()
         self.parameters.cfg = self.browse_cfg.path
         self.parameters.weights = self.browse_weights.path
+        self.parameters.model_name = self.combo_model.currentText()
         # Send signal to launch the process
         self.emitApply(self.parameters)
 

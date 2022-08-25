@@ -15,7 +15,6 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 from ikomia import core, dataprocess
 import copy
 # Your imports below
@@ -30,7 +29,7 @@ from detectron2.utils.visualizer import GenericMask
 from distutils.util import strtobool
 import torch
 from detectron2.config import CfgNode
-
+from infer_sparseinst.utils import model_zoo, gdrive_download
 
 
 # --------------------
@@ -43,6 +42,7 @@ class InferSparseinstParam(core.CWorkflowTaskParam):
         core.CWorkflowTaskParam.__init__(self)
         # Place default value initialization here
         # Example : self.windowSize = 25
+        self.model_name = "sparse_inst_r50_giam_aug"
         self.conf_thres = 0.5
         self.custom = False
         self.cfg = ""
@@ -58,6 +58,7 @@ class InferSparseinstParam(core.CWorkflowTaskParam):
         self.custom = strtobool(param_map["custom"])
         self.cfg = param_map["cfg"]
         self.weights = param_map["weights"]
+        self.model_name = param_map["model_name"]
 
     def getParamMap(self):
         # Send parameters values to Ikomia application
@@ -68,6 +69,7 @@ class InferSparseinstParam(core.CWorkflowTaskParam):
         param_map["custom"] = str(self.custom)
         param_map["cfg"] = self.cfg
         param_map["weights"] = self.weights
+        param_map["model_name"] = self.model_name
         return param_map
 
 
@@ -122,6 +124,10 @@ class InferSparseinst(dataprocess.C2dImageTask):
         # Get parameters :
         param = self.getParam()
         plugin_folder = os.path.dirname(os.path.abspath(__file__))
+        models_folder = os.path.join(plugin_folder, "models")
+        if not os.path.isdir(models_folder):
+            os.mkdir(models_folder)
+
         if self.model is None or param.update:
             if param.custom:
                 self.args = Namespace()
@@ -141,13 +147,15 @@ class InferSparseinst(dataprocess.C2dImageTask):
                 self.model = VisualizationDemo(cfg).predictor
                 param.update = False
             else:
+                weights = os.path.join(models_folder, param.model_name+'.pth')
+                if not os.path.isfile(weights):
+                    gdrive_download(model_zoo[param.model_name], weights)
                 self.args = Namespace()
-                self.args.opts = ["MODEL.WEIGHTS", os.path.join(plugin_folder, "models", "sparse_inst_r50_giam_aug_2b7d68"
-                                                                                         ".pth")]
+                self.args.opts = ["MODEL.WEIGHTS", weights]
                 self.args.confidence_threshold = param.conf_thres
                 self.args.output = ""
                 self.args.input = ""
-                self.args.config_file = os.path.join(plugin_folder, "configs", "sparse_inst_r50_giam_aug.yaml")
+                self.args.config_file = os.path.join(plugin_folder, "configs", param.model_name+'.yaml')
                 cfg = self.setup_cfg(self.args)
                 try:
                     self.class_names = cfg.CLASS_NAMES
