@@ -1,3 +1,3 @@
-from .resnet import build_resnet_vd_backbone
-from .pvt import build_pyramid_vision_transformer
-from .cspnet import build_cspnet_backbone
+from infer_sparseinst.sparseinst.backbones.resnet import build_resnet_vd_backbone
+from infer_sparseinst.sparseinst.backbones.pvt import build_pyramid_vision_transformer
+from infer_sparseinst.sparseinst.backbones.cspnet import build_cspnet_backbone
