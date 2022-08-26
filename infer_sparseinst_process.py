@@ -15,6 +15,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+from infer_sparseinst import update_path
 from ikomia import core, dataprocess
 import copy
 # Your imports below
