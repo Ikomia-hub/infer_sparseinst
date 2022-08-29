@@ -195,6 +195,8 @@ class InferSparseinst(dataprocess.C2dImageTask):
             colors = [[0, 0, 0]]
             np.random.seed(10)
             for i, (mask, cls, score, box) in enumerate(zip(masks, classes, scores, bboxes)):
+                if cls >= len(self.class_names):
+                    continue
                 colors.append([int(c) for c in np.random.choice(range(256), size=3)])
                 instance_seg[mask] = i + 1
                 x1, y1, x2, y2 = box
