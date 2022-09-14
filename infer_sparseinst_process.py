@@ -85,13 +85,9 @@ class InferSparseinst(dataprocess.C2dImageTask):
         # Add input/output of the process here
         # Example :  self.addInput(dataprocess.CImageIO())
         #           self.addOutput(dataprocess.CImageIO())
-        self.setOutputDataType(core.IODataType.IMAGE_LABEL, 0)
-        self.addOutput(dataprocess.CImageIO())
-        # Add graphics output
-        self.addOutput(dataprocess.CGraphicsOutput())
-        # Add numeric output
-        self.addOutput(dataprocess.CBlobMeasureIO())
 
+        self.addOutput(dataprocess.CInstanceSegIO())
+        self.colors = None
         self.args = None
         self.model = None
         self.cpu_device = torch.device('cpu')
@@ -117,10 +113,7 @@ class InferSparseinst(dataprocess.C2dImageTask):
         # Get input :
         input = self.getInput(0)
 
-        # Get output :
-        instance_out = self.getOutput(0)
-        graphics_output = self.getOutput(2)
-        numeric_output = self.getOutput(3)
+        self.forwardInputImage(0, 0)
 
         # Get parameters :
         param = self.getParam()
@@ -175,14 +168,19 @@ class InferSparseinst(dataprocess.C2dImageTask):
                                         'scissors', 'teddy bear', 'hair drier', 'toothbrush']
                 param.update = False
                 self.model = VisualizationDemo(cfg).predictor
+            self.colors = np.array(np.random.randint(0, 255, (len(self.class_names), 3)))
+            self.colors = [[int(c[0]), int(c[1]), int(c[2])] for c in self.colors]
 
         if input.isDataAvailable():
             # Get image from input/output (numpy array):
             srcImage = input.getImage()
-            graphics_output.setNewLayer("SparseInst")
-            graphics_output.setImageIndex(1)
-            numeric_output.clearData()
+
             h, w = np.shape(srcImage)[:2]
+
+            # Get output :
+            instance_seg_out = self.getOutput(1)
+            instance_seg_out.init("SparseInst", 0, w, h)
+
             predictions = self.model(srcImage)
             instances = predictions["instances"].to(self.cpu_device)
             instances = instances[instances.scores > self.args.confidence_threshold]
@@ -192,50 +190,16 @@ class InferSparseinst(dataprocess.C2dImageTask):
             classes = instances.pred_classes.numpy()
             scores = instances.scores.numpy()
             instance_seg = np.zeros((h, w))
-            colors = [[0, 0, 0]]
-            np.random.seed(10)
+            np.random.seed(0)
             for i, (mask, cls, score, box) in enumerate(zip(masks, classes, scores, bboxes)):
                 if cls >= len(self.class_names):
                     continue
-                colors.append([int(c) for c in np.random.choice(range(256), size=3)])
                 instance_seg[mask] = i + 1
                 x1, y1, x2, y2 = box
                 w = float(x2 - x1)
                 h = float(y2 - y1)
-                prop_rect = core.GraphicsRectProperty()
-                prop_rect.pen_color = colors[-1]
-                graphics_box = graphics_output.addRectangle(float(x1), float(y1), w, h, prop_rect)
-                graphics_box.setCategory(self.class_names[cls])
-                # Label
-                name = self.class_names[int(cls)]
-                prop_text = core.GraphicsTextProperty()
-                prop_text.font_size = 8
-                prop_text.color = [c // 2 for c in colors[-1]]
-                graphics_output.addText(name, float(x1), float(y1), prop_text)
-                # Object results
-                results = []
-                confidence_data = dataprocess.CObjectMeasure(
-                    dataprocess.CMeasure(core.MeasureId.CUSTOM, "Confidence"),
-                    float(score),
-                    graphics_box.getId(),
-                    name)
-                box_data = dataprocess.CObjectMeasure(
-                    dataprocess.CMeasure(core.MeasureId.BBOX),
-                    graphics_box.getBoundingRect(),
-                    graphics_box.getId(),
-                    name)
-                results.append(confidence_data)
-                results.append(box_data)
-                numeric_output.addObjectMeasures(results)
-            self.setOutputColorMap(1, 0, colors)
-            self.forwardInputImage(0, 1)
-            instance_out.setImage(instance_seg)
-
-        # Call to the process main routine
-        # dstImage = ...
-
-        # Set image of input/output (numpy array):
-        # output.setImage(dstImage)
+                instance_seg_out.addInstance(i, 1, int(cls), self.class_names[cls], float(score), float(x1), float(y1), w, h,
+                                             mask.astype(dtype='uint8'), self.colors[cls])
 
         # Step progress bar:
         self.emitStepProgress()
