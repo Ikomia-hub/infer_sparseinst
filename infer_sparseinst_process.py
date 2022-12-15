@@ -201,6 +201,7 @@ class InferSparseinst(dataprocess.C2dImageTask):
                 instance_seg_out.addInstance(i, 1, int(cls), self.class_names[cls], float(score), float(x1), float(y1), w, h,
                                              mask.astype(dtype='uint8'), self.colors[cls])
 
+        self.setOutputColorMap(0, 1, [[0, 0, 0]] + self.colors)
         # Step progress bar:
         self.emitStepProgress()
 
