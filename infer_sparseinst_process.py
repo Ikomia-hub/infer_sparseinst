@@ -50,7 +50,7 @@ class InferSparseinstParam(core.CWorkflowTaskParam):
         self.weights = ""
         self.update = True
 
-    def setParamMap(self, param_map):
+    def set_values(self, param_map):
         # Set parameters values from Ikomia application
         # Parameters values are stored as string and accessible like a python dict
         # Example : self.windowSize = int(param_map["windowSize"])
@@ -61,10 +61,10 @@ class InferSparseinstParam(core.CWorkflowTaskParam):
         self.weights = param_map["weights"]
         self.model_name = param_map["model_name"]
 
-    def getParamMap(self):
+    def get_values(self):
         # Send parameters values to Ikomia application
         # Create the specific dict structure (string container)
-        param_map = core.ParamMap()
+        param_map = {}
         # Example : paramMap["windowSize"] = str(self.windowSize)
         param_map["conf_thres"] = str(self.conf_thres)
         param_map["custom"] = str(self.custom)
@@ -78,15 +78,12 @@ class InferSparseinstParam(core.CWorkflowTaskParam):
 # - Class which implements the process
 # - Inherits PyCore.CWorkflowTask or derived from Ikomia API
 # --------------------
-class InferSparseinst(dataprocess.C2dImageTask):
+class InferSparseinst(dataprocess.CInstanceSegmentationTask):
 
     def __init__(self, name, param):
-        dataprocess.C2dImageTask.__init__(self, name)
+        dataprocess.CInstanceSegmentationTask.__init__(self, name)
         # Add input/output of the process here
-        # Example :  self.addInput(dataprocess.CImageIO())
-        #           self.addOutput(dataprocess.CImageIO())
 
-        self.addOutput(dataprocess.CInstanceSegIO())
         self.colors = None
         self.args = None
         self.model = None
@@ -95,28 +92,26 @@ class InferSparseinst(dataprocess.C2dImageTask):
 
         # Create parameters class
         if param is None:
-            self.setParam(InferSparseinstParam())
+            self.set_param_object(InferSparseinstParam())
         else:
-            self.setParam(copy.deepcopy(param))
+            self.set_param_object(copy.deepcopy(param))
 
-    def getProgressSteps(self):
+    def get_progress_steps(self):
         # Function returning the number of progress steps for this process
         # This is handled by the main progress bar of Ikomia application
         return 1
 
     def run(self):
         # Core function of your process
-        # Call beginTaskRun for initialization
-        self.beginTaskRun()
+        # Call begin_task_run for initialization
+        self.begin_task_run()
 
         # Examples :
         # Get input :
-        input = self.getInput(0)
-
-        self.forwardInputImage(0, 0)
+        input = self.get_input(0)
 
         # Get parameters :
-        param = self.getParam()
+        param = self.get_param_object()
         plugin_folder = os.path.dirname(os.path.abspath(__file__))
         models_folder = os.path.join(plugin_folder, "models")
         if not os.path.isdir(models_folder):
@@ -168,18 +163,14 @@ class InferSparseinst(dataprocess.C2dImageTask):
                                         'scissors', 'teddy bear', 'hair drier', 'toothbrush']
                 param.update = False
                 self.model = VisualizationDemo(cfg).predictor
-            self.colors = np.array(np.random.randint(0, 255, (len(self.class_names), 3)))
-            self.colors = [[int(c[0]), int(c[1]), int(c[2])] for c in self.colors]
 
-        if input.isDataAvailable():
+            self.set_names(self.class_names)
+
+        if input.is_data_available():
             # Get image from input/output (numpy array):
-            srcImage = input.getImage()
+            srcImage = input.get_image()
 
             h, w = np.shape(srcImage)[:2]
-
-            # Get output :
-            instance_seg_out = self.getOutput(1)
-            instance_seg_out.init("SparseInst", 0, w, h)
 
             predictions = self.model(srcImage)
             instances = predictions["instances"].to(self.cpu_device)
@@ -198,15 +189,14 @@ class InferSparseinst(dataprocess.C2dImageTask):
                 x1, y1, x2, y2 = box
                 w = float(x2 - x1)
                 h = float(y2 - y1)
-                instance_seg_out.addInstance(i, 1, int(cls), self.class_names[cls], float(score), float(x1), float(y1), w, h,
-                                             mask.astype(dtype='uint8'), self.colors[cls])
+                self.add_instance(i, 1, int(cls), float(score), float(x1), float(y1), w, h,
+                                             mask.astype(dtype='uint8'))
 
-        self.setOutputColorMap(0, 1, [[0, 0, 0]] + self.colors)
         # Step progress bar:
-        self.emitStepProgress()
+        self.emit_step_progress()
 
-        # Call endTaskRun to finalize process
-        self.endTaskRun()
+        # Call end_task_run to finalize process
+        self.end_task_run()
 
     @staticmethod
     def setup_cfg(args):
@@ -233,13 +223,13 @@ class InferSparseinstFactory(dataprocess.CTaskFactory):
         dataprocess.CTaskFactory.__init__(self)
         # Set process information as string here
         self.info.name = "infer_sparseinst"
-        self.info.shortDescription = "Infer Sparseinst instance segmentation models"
+        self.info.short_description = "Infer Sparseinst instance segmentation models"
         self.info.description = "Infer Sparseinst instance segmentation models"
         # relative path -> as displayed in Ikomia application process tree
         self.info.path = "Plugins/Python/Segmentation"
-        self.info.iconPath = "icons/sparseinst.png"
-        self.info.version = "1.0.0"
-        # self.info.iconPath = "your path to a specific icon"
+        self.info.icon_path = "icons/sparseinst.png"
+        self.info.version = "1.1.0"
+        # self.info.icon_path = "your path to a specific icon"
         self.info.authors = "Cheng, Tianheng and Wang, Xinggang and Chen, Shaoyu and Zhang, Wenqiang and Zhang, " \
                             "Qian and Huang, Chang and Zhang, Zhaoxiang and Liu, Wenyu "
         self.info.article = "Sparse Instance Activation for Real-Time Instance Segmentation"
@@ -247,7 +237,7 @@ class InferSparseinstFactory(dataprocess.CTaskFactory):
         self.info.year = 2022
         self.info.license = "MIT License"
         # URL of documentation
-        self.info.documentationLink = "https://github.com/hustvl/SparseInst#readme"
+        self.info.documentation_link = "https://github.com/hustvl/SparseInst#readme"
         # Code source repository
         self.info.repository = "https://github.com/hustvl/SparseInst"
         # Keywords used for search

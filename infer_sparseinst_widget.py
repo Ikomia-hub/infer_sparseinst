@@ -60,14 +60,14 @@ class InferSparseinstWidget(core.CWorkflowTaskWidget):
         layout_ptr = qtconversion.PyQtToQt(self.gridLayout)
 
         # Set widget layout
-        self.setLayout(layout_ptr)
+        self.set_layout(layout_ptr)
 
     def on_check_custom(self, i):
         self.browse_weights.setEnabled(not self.check_custom.isChecked())
         self.browse_cfg.setEnabled(not self.check_custom.isChecked())
         self.combo_model.setEnabled(self.check_custom.isChecked())
 
-    def onApply(self):
+    def on_apply(self):
         # Apply button clicked slot
 
         # Get parameters from widget
@@ -79,7 +79,7 @@ class InferSparseinstWidget(core.CWorkflowTaskWidget):
         self.parameters.weights = self.browse_weights.path
         self.parameters.model_name = self.combo_model.currentText()
         # Send signal to launch the process
-        self.emitApply(self.parameters)
+        self.emit_apply(self.parameters)
 
 
 # --------------------

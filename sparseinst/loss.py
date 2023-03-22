@@ -8,7 +8,7 @@ from fvcore.nn import sigmoid_focal_loss_jit
 
 from detectron2.utils.registry import Registry
 
-from .utils import nested_masks_from_list, is_dist_avail_and_initialized, get_world_size
+from infer_sparseinst.sparseinst.utils import nested_masks_from_list, is_dist_avail_and_initialized, get_world_size
 
 SPARSE_INST_MATCHER_REGISTRY = Registry("SPARSE_INST_MATCHER")
 SPARSE_INST_MATCHER_REGISTRY.__doc__ = "Matcher for SparseInst"
