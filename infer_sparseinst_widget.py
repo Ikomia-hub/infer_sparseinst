@@ -48,10 +48,10 @@ class InferSparseinstWidget(core.CWorkflowTaskWidget):
         self.double_spin_thres = pyqtutils.append_double_spin(self.gridLayout, "Confidence threshold",
                                                               self.parameters.conf_thres, min=0., max=1., step=1e-2)
         self.check_custom = pyqtutils.append_check(self.gridLayout, "Default weights",
-                                                   not self.parameters.custom)
-        self.browse_cfg = pyqtutils.append_browse_file(self.gridLayout, "Config file (.yaml)", self.parameters.cfg)
+                                                   not self.parameters.use_custom_model)
+        self.browse_cfg = pyqtutils.append_browse_file(self.gridLayout, "Config file (.yaml)", self.parameters.config)
         self.browse_weights = pyqtutils.append_browse_file(self.gridLayout, "Model weights (.pth)",
-                                                           self.parameters.weights)
+                                                           self.parameters.model_path)
         self.browse_weights.setEnabled(not self.check_custom.isChecked())
         self.browse_cfg.setEnabled(not self.check_custom.isChecked())
         self.check_custom.stateChanged.connect(self.on_check_custom)
@@ -74,9 +74,9 @@ class InferSparseinstWidget(core.CWorkflowTaskWidget):
         # Example : self.parameters.windowSize = self.spinWindowSize.value()
         self.parameters.update = True
         self.parameters.conf_thres = self.double_spin_thres.value()
-        self.parameters.custom = not self.check_custom.isChecked()
-        self.parameters.cfg = self.browse_cfg.path
-        self.parameters.weights = self.browse_weights.path
+        self.parameters.use_custom_model = not self.check_custom.isChecked()
+        self.parameters.config = self.browse_cfg.path
+        self.parameters.model_path = self.browse_weights.path
         self.parameters.model_name = self.combo_model.currentText()
         # Send signal to launch the process
         self.emit_apply(self.parameters)
