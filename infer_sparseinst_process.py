@@ -200,8 +200,7 @@ class InferSparseinst(dataprocess.CInstanceSegmentationTask):
                 x1, y1, x2, y2 = box
                 w = float(x2 - x1)
                 h = float(y2 - y1)
-                self.add_instance(i, 1, int(cls), float(score), float(x1), float(y1), w, h,
-                                             mask.astype(dtype='uint8'))
+                self.add_object(i, 1, int(cls), float(score), float(x1), float(y1), w, h, mask.astype(dtype='uint8'))
 
         # Step progress bar:
         self.emit_step_progress()
