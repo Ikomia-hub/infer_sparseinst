@@ -47,7 +47,7 @@ class InferSparseinstParam(core.CWorkflowTaskParam):
         self.model_name = "sparse_inst_r50_giam_aug"
         self.conf_thres = 0.5
         self.use_custom_model = False
-        self.config = ""
+        self.config_file = ""
         self.model_path = ""
         self.update = True
 
@@ -59,7 +59,7 @@ class InferSparseinstParam(core.CWorkflowTaskParam):
         self.update = True
         self.conf_thres = float(param_map["conf_thres"])
         self.use_custom_model = strtobool(param_map["use_custom_model"])
-        self.config = param_map["config"]
+        self.config_file = param_map["config_file"]
         self.model_path = param_map["model_path"]
         self.model_name = param_map["model_name"]
 
@@ -70,7 +70,7 @@ class InferSparseinstParam(core.CWorkflowTaskParam):
         param_map["model_name_or_path"] = self.model_name_or_path
         param_map["conf_thres"] = str(self.conf_thres)
         param_map["use_custom_model"] = str(self.use_custom_model)
-        param_map["config"] = self.config
+        param_map["config_file"] = self.config_file
         param_map["model_path"] = self.model_path
         param_map["model_name"] = self.model_name
         return param_map
@@ -135,7 +135,7 @@ class InferSparseinst(dataprocess.CInstanceSegmentationTask):
                 self.args.confidence_threshold = param.conf_thres
                 self.args.output = ""
                 self.args.input = ""
-                self.args.config_file = param.config
+                self.args.config_file = param.config_file
 
                 with open(self.args.config_file, 'r') as f:
                     cfg = CfgNode.load_cfg(f.read())

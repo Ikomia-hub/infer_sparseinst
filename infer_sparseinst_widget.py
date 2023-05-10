@@ -49,7 +49,7 @@ class InferSparseinstWidget(core.CWorkflowTaskWidget):
                                                               self.parameters.conf_thres, min=0., max=1., step=1e-2)
         self.check_custom = pyqtutils.append_check(self.gridLayout, "Default weights",
                                                    not self.parameters.use_custom_model)
-        self.browse_cfg = pyqtutils.append_browse_file(self.gridLayout, "Config file (.yaml)", self.parameters.config)
+        self.browse_cfg = pyqtutils.append_browse_file(self.gridLayout, "Config file (.yaml)", self.parameters.config_file)
         self.browse_weights = pyqtutils.append_browse_file(self.gridLayout, "Model weights (.pth)",
                                                            self.parameters.model_path)
         self.browse_weights.setEnabled(not self.check_custom.isChecked())
@@ -75,7 +75,7 @@ class InferSparseinstWidget(core.CWorkflowTaskWidget):
         self.parameters.update = True
         self.parameters.conf_thres = self.double_spin_thres.value()
         self.parameters.use_custom_model = not self.check_custom.isChecked()
-        self.parameters.config = self.browse_cfg.path
+        self.parameters.config_file = self.browse_cfg.path
         self.parameters.model_path = self.browse_weights.path
         self.parameters.model_name = self.combo_model.currentText()
         # Send signal to launch the process
