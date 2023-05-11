@@ -43,35 +43,32 @@ class InferSparseinstParam(core.CWorkflowTaskParam):
         core.CWorkflowTaskParam.__init__(self)
         # Place default value initialization here
         # Example : self.windowSize = 25
-        self.model_name_or_path = ""
         self.model_name = "sparse_inst_r50_giam_aug"
         self.conf_thres = 0.5
         self.use_custom_model = False
         self.config_file = ""
-        self.model_path = ""
+        self.model_weight_file = ""
         self.update = True
 
     def set_values(self, param_map):
         # Set parameters values from Ikomia application
         # Parameters values are stored as string and accessible like a python dict
         # Example : self.windowSize = int(param_map["windowSize"])
-        self.model_name_or_path = param_map["model_name_or_path"]
         self.update = True
         self.conf_thres = float(param_map["conf_thres"])
         self.use_custom_model = strtobool(param_map["use_custom_model"])
         self.config_file = param_map["config_file"]
-        self.model_path = param_map["model_path"]
+        self.model_weight_file = param_map["model_weight_file"]
         self.model_name = param_map["model_name"]
 
     def get_values(self):
         # Send parameters values to Ikomia application
         # Create the specific dict structure (string container)
         param_map = {}
-        param_map["model_name_or_path"] = self.model_name_or_path
         param_map["conf_thres"] = str(self.conf_thres)
         param_map["use_custom_model"] = str(self.use_custom_model)
         param_map["config_file"] = self.config_file
-        param_map["model_path"] = self.model_path
+        param_map["model_weight_file"] = self.model_weight_file
         param_map["model_name"] = self.model_name
         return param_map
 
@@ -120,18 +117,13 @@ class InferSparseinst(dataprocess.CInstanceSegmentationTask):
             os.mkdir(models_folder)
 
         if self.model is None or param.update:
-            if param.model_path != "":
-                param.use_custom_model = True
-            if param.model_name_or_path != "":
-                if os.path.isfile(param.model_name_or_path):
+            if param.model_weight_file != "":
+                if os.path.isfile(param.model_weight_file):
                     param.use_custom_model = True
-                    param.model_path = param.model_name_or_path
-                else:
-                    param.model_name = param.model_name_or_path
-                    
+
             if param.use_custom_model:
                 self.args = Namespace()
-                self.args.opts = ["MODEL.WEIGHTS", param.model_path]
+                self.args.opts = ["MODEL.WEIGHTS", param.model_weight_file]
                 self.args.confidence_threshold = param.conf_thres
                 self.args.output = ""
                 self.args.input = ""
