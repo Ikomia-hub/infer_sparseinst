@@ -1,17 +1,17 @@
 <div align="center">
   <img src="images/icon.png" alt="Algorithm icon">
-  <h1 align="center">_algorithm_name_</h1>
+  <h1 align="center">infer_sparseinst</h1>
 </div>
 <br />
 <p align="center">
-    <a href="https://github.com/Ikomia-hub/_algorithm_name_">
-        <img alt="Stars" src="https://img.shields.io/github/stars/Ikomia-hub/_algorithm_name_">
+    <a href="https://github.com/Ikomia-hub/infer_sparseinst">
+        <img alt="Stars" src="https://img.shields.io/github/stars/Ikomia-hub/infer_sparseinst">
     </a>
     <a href="https://app.ikomia.ai/hub/">
         <img alt="Website" src="https://img.shields.io/website/http/app.ikomia.ai/en.svg?down_color=red&down_message=offline&up_message=online">
     </a>
-    <a href="https://github.com/Ikomia-hub/_algorithm_name_/blob/main/LICENSE.md">
-        <img alt="GitHub" src="https://img.shields.io/github/license/Ikomia-hub/_algorithm_name_.svg?color=blue">
+    <a href="https://github.com/Ikomia-hub/infer_sparseinst/blob/main/LICENSE.md">
+        <img alt="GitHub" src="https://img.shields.io/github/license/Ikomia-hub/infer_sparseinst.svg?color=blue">
     </a>    
     <br>
     <a href="https://discord.com/invite/82Tnw9UGGc">
@@ -19,10 +19,10 @@
     </a> 
 </p>
 
-[Put algorithm description here]
 
-[Insert illustrative image here. Image must be accessible publicly, in algorithm Github repository for example.
-<img src="images/illustration.png"  alt="Illustrative image" width="30%" height="30%">]
+Run Sparseinst instance segmentation models.
+
+![Cat instance segmentation](https://raw.githubusercontent.com/Ikomia-hub/infer_sparseinst/main/icons/output.jpg)
 
 ## :rocket: Use with Ikomia API
 
@@ -36,20 +36,22 @@ pip install ikomia
 
 #### 2. Create your workflow
 
-[Change the sample image URL to fit algorithm purpose]
 
 ```python
-import ikomia
 from ikomia.dataprocess.workflow import Workflow
+from ikomia.utils.displayIO import display
 
 # Init your workflow
 wf = Workflow()
 
 # Add algorithm
-algo = wf.add_task(name="_algorithm_name_", auto_connect=True)
+algo = wf.add_task(name="infer_sparseinst", auto_connect=True)
 
 # Run on your image  
-wf.run_on(url="example_image.png")
+wf.run_on(url="https://raw.githubusercontent.com/Ikomia-dev/notebooks/main/examples/img/img_cat.jpg")
+
+# Inpect your result
+display(algo.get_image_with_mask_and_graphics())
 ```
 
 ## :sunny: Use with Ikomia Studio
@@ -62,29 +64,44 @@ Ikomia Studio offers a friendly UI with the same features as the API.
 
 ## :pencil: Set algorithm parameters
 
-[Explain each algorithm parameters]
+- **model_name** (str) - default 'sparse_inst_r50_giam_aug': Name of the Sparseinst model. Additional models are available:
+    - sparse_inst_r50vd_base
+    - sparse_inst_r50_giam
+    - sparse_inst_r50_giam_soft
+    - sparse_inst_r50_giam_aug
+    - sparse_inst_r50_dcn_giam_aug
+    - sparse_inst_r50vd_giam_aug
+    - sparse_inst_r50vd_dcn_giam_aug
+    - sparse_inst_r101_giam
+    - sparse_inst_r101_dcn_giam
+    - sparse_inst_pvt_b1_giam
+    - sparse_inst_pvt_b2_li_giam
 
-[Change the sample image URL to fit algorithm purpose]
+- **conf_thres** (float) default '0.5': Confidence threshold for the prediction [0,1]
+- **config_file** (str, *optional*): Path to the .yaml config file.
+- **model_weight_file** (str, *optional*): Path to model weights file .pth. 
+
 
 ```python
-import ikomia
 from ikomia.dataprocess.workflow import Workflow
+from ikomia.utils.displayIO import display
 
 # Init your workflow
 wf = Workflow()
 
 # Add algorithm
-algo = wf.add_task(name="_algorithm_name_", auto_connect=True)
+algo = wf.add_task(name="infer_sparseinst", auto_connect=True)
 
 algo.set_parameters({
-    "param1": "value1",
-    "param2": "value2",
-    ...
+    "model_name": "sparse_inst_r50_giam",
+    "conf_thres": "0.5",
 })
 
 # Run on your image  
-wf.run_on(url="example_image.png")
+wf.run_on(url="https://raw.githubusercontent.com/Ikomia-dev/notebooks/main/examples/img/img_cat.jpg")
 
+# Inpect your result
+display(algo.get_image_with_mask_and_graphics())
 ```
 
 ## :mag: Explore algorithm outputs
@@ -99,19 +116,16 @@ from ikomia.dataprocess.workflow import Workflow
 wf = Workflow()
 
 # Add algorithm
-algo = wf.add_task(name="_algorithm_name_", auto_connect=True)
+algo = wf.add_task(name="infer_sparseinst", auto_connect=True)
 
 # Run on your image  
-wf.run_on(url="example_image.png")
+wf.run_on(url="https://raw.githubusercontent.com/Ikomia-dev/notebooks/main/examples/img/img_cat.jpg")
 
 # Iterate over outputs
-for output in algo.get_outputs()
+for output in algo.get_outputs():
     # Print information
     print(output)
     # Export it to JSON
     output.to_json()
 ```
 
-## :fast_forward: Advanced usage 
-
-[optional]
