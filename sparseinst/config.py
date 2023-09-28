@@ -1,10 +1,11 @@
 # Copyright (c) Tianheng Cheng and its affiliates. All Rights Reserved
 
 from detectron2.config import CfgNode as CN
+import torch 
 
 def add_sparse_inst_config(cfg):
 
-    cfg.MODEL.DEVICE = 'cuda'
+    cfg.MODEL.DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
     cfg.MODEL.MASK_ON = True
     # [SparseInst]
     cfg.MODEL.SPARSE_INST = CN()
