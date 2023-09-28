@@ -226,7 +226,6 @@ class InferSparseinstFactory(dataprocess.CTaskFactory):
         # Set process information as string here
         self.info.name = "infer_sparseinst"
         self.info.short_description = "Infer Sparseinst instance segmentation models"
-        self.info.description = "Infer Sparseinst instance segmentation models"
         # relative path -> as displayed in Ikomia application process tree
         self.info.path = "Plugins/Python/Segmentation"
         self.info.icon_path = "icons/sparseinst.png"
@@ -241,7 +240,8 @@ class InferSparseinstFactory(dataprocess.CTaskFactory):
         # URL of documentation
         self.info.documentation_link = "https://github.com/hustvl/SparseInst#readme"
         # Code source repository
-        self.info.repository = "https://github.com/hustvl/SparseInst"
+        self.info.repository = "https://github.com/Ikomia-hub/infer_sparseinst"
+        self.info.original_repository = "https://github.com/hustvl/SparseInst"
         # Keywords used for search
         self.info.keywords = "infer, sparse, instance, segmentation, real-time, detectron2"
 
