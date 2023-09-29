@@ -244,6 +244,8 @@ class InferSparseinstFactory(dataprocess.CTaskFactory):
         self.info.original_repository = "https://github.com/hustvl/SparseInst"
         # Keywords used for search
         self.info.keywords = "infer, sparse, instance, segmentation, real-time, detectron2"
+        self.info.algo_type = core.AlgoType.INFER
+        self.info.algo_tasks = "INSTANCE_SEGMENTATION"
 
     def create(self, param=None):
         # Create process object
