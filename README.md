@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="images/icon.png" alt="Algorithm icon">
+  <img src="https://raw.githubusercontent.com/Ikomia-hub/infer_sparseinst/main/icons/sparseinst.png" alt="Algorithm icon">
   <h1 align="center">infer_sparseinst</h1>
 </div>
 <br />
