@@ -180,7 +180,7 @@ class InferSparseinst(dataprocess.CInstanceSegmentationTask):
             instances = instances[instances.scores > self.args.confidence_threshold]
             masks = np.asarray(instances.pred_masks.tensor)
             bboxes = [GenericMask(x, h, w).bbox() for x in masks]
-            masks = [GenericMask(x, h, w).mask.astype(dtype=np.bool) for x in masks]
+            masks = [GenericMask(x, h, w).mask.astype(dtype=bool) for x in masks]
             classes = instances.pred_classes.numpy()
             scores = instances.scores.numpy()
             instance_seg = np.zeros((h, w))
