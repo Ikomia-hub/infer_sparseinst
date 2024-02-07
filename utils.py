@@ -1,5 +1,4 @@
-import requests
-
+import gdown
 
 model_zoo = {"sparse_inst_r50vd_base": "1fjPFy35X2iJu3tYwVdAq4Bel82PfH5kx",
              "sparse_inst_r50_giam": "1pXU7Dsa1L7nUiLU9ULG2F6Pl5m5NEguL",
@@ -16,16 +15,8 @@ model_zoo = {"sparse_inst_r50vd_base": "1fjPFy35X2iJu3tYwVdAq4Bel82PfH5kx",
 
 def gdrive_download(file_id, dst_path):
     print("Downloading model")
-    url = "https://docs.google.com/uc?export=download"
-    session = requests.Session()
-    response = session.get(url, params={'id': file_id, "confirm": "t"}, stream=True)
-    save_response_content(response, dst_path)
+    url = "https://drive.google.com/uc?id="
+    gdown.download(url+file_id, dst_path, quiet=False)
     print("Model downloaded")
 
 
-def save_response_content(response, dst_path):
-    CHUNK_SIZE = 32768
-    with open(dst_path, "wb") as f:
-        for chunk in response.iter_content(CHUNK_SIZE):
-            if chunk:  # filter out keep-alive new chunks
-                f.write(chunk)
